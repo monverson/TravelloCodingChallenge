@@ -8,7 +8,8 @@ import com.travello.exception.NoPriceFoundException;
 import java.util.*;
 
 import static java.lang.String.valueOf;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toMap;
+
 
 public class Checkout {
 
@@ -42,7 +43,7 @@ public class Checkout {
 
     public String calculateTotalPrice() {
         Map<Item, Long> groupByItemAndQuantity = this.itemList.stream().filter(Objects::nonNull).collect(toMap(item -> item, item -> 1L, Long::sum));
-        double sum = groupByItemAndQuantity.entrySet().stream().mapToDouble(entry ->
+        Double sum = groupByItemAndQuantity.entrySet().stream().mapToDouble(entry ->
                 getPriceCalculator(entry.getKey()).calculateTotalPrice(itemInformation, entry.getValue())).sum();
         return valueOf(sum);
     }
