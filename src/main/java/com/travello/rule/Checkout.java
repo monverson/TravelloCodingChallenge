@@ -2,13 +2,10 @@ package com.travello.rule;
 
 import com.travello.entity.Item;
 import com.travello.entity.ItemProvider;
+import com.travello.exception.NoPriceFoundException;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
 
 import static java.lang.String.valueOf;
 import static java.util.stream.Collectors.*;
@@ -20,6 +17,7 @@ public class Checkout {
     private static final DiscountPriceCalculator discountPriceCalculator = new DiscountPriceCalculator();
     private static final Map<Item, ItemProvider> ITEM_EVALUATION_HASH_MAP = new HashMap<>();
     private static ItemProvider itemInformation = new ItemProvider();
+    private static final String NO_PRICE_FOUND = "There is no price information available";
 
     public Checkout() {
         this.itemList = new ArrayList<>();
@@ -35,11 +33,15 @@ public class Checkout {
 
     public static BasePriceCalculator getPriceCalculator(Item item) {
         itemInformation = ITEM_EVALUATION_HASH_MAP.get(item);
+        if (itemInformation == null) {
+            throw new NoPriceFoundException(NO_PRICE_FOUND);
+        }
         return itemInformation.getDiscountPrice() == null ? netPriceCalculator : discountPriceCalculator;
+
     }
 
     public String calculateTotalPrice() {
-        Map<Item, Long> groupByItemAndQuantity = this.itemList.stream().collect(toMap(item -> item, item -> 1L, Long::sum));
+        Map<Item, Long> groupByItemAndQuantity = this.itemList.stream().filter(Objects::nonNull).collect(toMap(item -> item, item -> 1L, Long::sum));
         double sum = groupByItemAndQuantity.entrySet().stream().mapToDouble(entry ->
                 getPriceCalculator(entry.getKey()).calculateTotalPrice(itemInformation, entry.getValue())).sum();
         return valueOf(sum);

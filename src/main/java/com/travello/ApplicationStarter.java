@@ -12,12 +12,11 @@ public class ApplicationStarter {
 
 
         final Checkout checkout = new Checkout();
-        ItemProvider itemProvider=new ItemProvider();
+        ItemProvider itemProvider = new ItemProvider();
         checkout.add(new Item("A"), itemProvider.ruleForDiscount(50D, 130D, 3L));
         checkout.add(new Item("B"), itemProvider.ruleForDiscount(30D, 45D, 2L));
         checkout.add(new Item("C"), itemProvider.ruleForWithoutDiscount(20D));
         checkout.add(new Item("D"), itemProvider.ruleForWithoutDiscount(15D));
-
 
 
         checkout.scan(new Item("A"));
